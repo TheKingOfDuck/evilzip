@@ -11,7 +11,7 @@ evilzip lets you create a zip file(with password) that contains files with direc
 
 ```
 ╭─ fucker ~/Coding/Java/Intellij/evilzip/
-╰─ java -jar evilzip.jar -h                                                                                                                                                                                                                                                                                                                                             
+╰─ java -jar evilzip.jar -h
 Usage: java -jar EvilZip.jar [options]
   Options:
     -f, --file
