@@ -53,7 +53,7 @@ public class ZipHelper {
         }
 
         File in = new File(inputFile);
-        in.setExecutable(true);
+        // in.setExecutable(true);
         in.setReadable(true);
         in.setWritable(true);
         zip.addFile(in, parameters);
